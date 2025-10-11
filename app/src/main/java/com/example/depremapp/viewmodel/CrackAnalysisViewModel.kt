@@ -18,7 +18,7 @@ data class UiState(
 
 class CrackAnalysisViewModel : ViewModel() {
     
-    private val repository = GeminiRepository()
+    private val repository = GroqRepository()
     
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()

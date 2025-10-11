@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object GeminiRetrofitInstance {
-    private const val BASE_URL = "https://generativelanguage.googleapis.com/"
+    private const val BASE_URL = "https://api.groq.com/openai/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

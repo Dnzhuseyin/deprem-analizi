@@ -65,7 +65,7 @@ data class PromptFeedback(
 )
 
 interface GeminiApiService {
-    @POST("v1beta/models/{model}:generateContent")
+    @POST("v1/chat/completions")
     suspend fun generateContent(
         @Path("model") model: String,
         @Query("key") apiKey: String,
