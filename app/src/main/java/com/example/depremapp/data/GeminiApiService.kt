@@ -67,11 +67,35 @@ data class PromptFeedback(
 interface GeminiApiService {
     @POST("v1/chat/completions")
     suspend fun generateContent(
-        @Path("model") model: String,
-        @Query("key") apiKey: String,
-        @Body request: GeminiRequest
-    ): Response<GeminiResponse>
+        @Header("Authorization") authorization: String,
+        @Body request: GroqChatRequest
+    ): Response<GroqChatResponse>
 }
+
+// Groq API Models
+data class GroqChatRequest(
+    @SerializedName("model") val model: String,
+    @SerializedName("messages") val messages: List<GroqMessage>,
+    @SerializedName("temperature") val temperature: Double = 0.7,
+    @SerializedName("max_tokens") val maxTokens: Int = 1024
+)
+
+data class GroqMessage(
+    @SerializedName("role") val role: String,
+    @SerializedName("content") val content: String
+)
+
+data class GroqChatResponse(
+    @SerializedName("choices") val choices: List<GroqChoice>?
+)
+
+data class GroqChoice(
+    @SerializedName("message") val message: GroqResponseMessage
+)
+
+data class GroqResponseMessage(
+    @SerializedName("content") val content: String
+)
 
 // Alternative endpoint for stable API
 interface GeminiApiServiceV1 {
