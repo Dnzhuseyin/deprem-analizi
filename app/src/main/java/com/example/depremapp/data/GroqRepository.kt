@@ -7,19 +7,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
-sealed class AnalysisResult {
-    data class Success(val severity: DamageSeverity, val details: String) : AnalysisResult()
-    data class Error(val message: String) : AnalysisResult()
-    object Loading : AnalysisResult()
-}
-
-enum class DamageSeverity {
-    NONE,
-    MINOR,      // Az Hasarlı
-    MODERATE,   // Orta Hasarlı
-    SEVERE      // Ağır Hasarlı
-}
-
 class GroqRepository {
     
     private val api = GeminiRetrofitInstance.api
