@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.depremapp.data.AnalysisResult
-import com.example.depremapp.data.DamageSeverity
+import com.example.depremapp.data.DamageType
 import com.example.depremapp.ui.ImagePickerUtils
 import com.example.depremapp.ui.theme.DepremAppTheme
 import com.example.depremapp.viewmodel.CrackAnalysisViewModel
