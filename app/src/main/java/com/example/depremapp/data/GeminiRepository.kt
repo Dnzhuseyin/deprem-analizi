@@ -61,7 +61,7 @@ class GeminiRepository {
             )
             
             val response = api.generateContent(
-                model = "gemini-1.5-pro-latest",
+                model = "gemini-pro-vision",
                 apiKey = BuildConfig.GEMINI_API_KEY,
                 request = request
             )

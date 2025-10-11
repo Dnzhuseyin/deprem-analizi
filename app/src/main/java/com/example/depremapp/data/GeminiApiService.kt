@@ -73,3 +73,13 @@ interface GeminiApiService {
     ): Response<GeminiResponse>
 }
 
+// Alternative endpoint for stable API
+interface GeminiApiServiceV1 {
+    @POST("v1/models/{model}:generateContent")
+    suspend fun generateContent(
+        @Path("model") model: String,
+        @Query("key") apiKey: String,
+        @Body request: GeminiRequest
+    ): Response<GeminiResponse>
+}
+
