@@ -17,17 +17,22 @@ class GroqRepository {
             val crackData = analyzeCrackDetails(bitmap)
             val complexity = crackData.complexity
             
-            // Hasar tipi belirleme
+            // Hasar tipi belirleme - daha hassas eşikler
             val (damageType, crackWidth, recommendation) = when {
-                complexity < 0.15 -> Triple(
+                complexity < 0.05 -> Triple(
                     DamageType.TYPE_O,
                     String.format("%.1f mm", crackData.estimatedWidth),
-                    "Yapıda hasar tespit edilmedi. Rutin kontroller yeterlidir."
+                    "Yapıda önemli hasar tespit edilmedi. Rutin kontroller yeterlidir."
                 )
-                complexity < 0.30 -> Triple(
+                complexity < 0.15 -> Triple(
                     DamageType.TYPE_A,
                     String.format("%.1f mm", crackData.estimatedWidth),
                     "Kılcal çatlaklar mevcut. Estetik onarım önerilir, yapısal risk düşük."
+                )
+                complexity < 0.30 -> Triple(
+                    DamageType.TYPE_B,
+                    String.format("%.1f mm", crackData.estimatedWidth),
+                    "Belirgin çatlaklar tespit edildi. Uzman incelemesi ve onarım gerekli."
                 )
                 complexity < 0.50 -> Triple(
                     DamageType.TYPE_B,
