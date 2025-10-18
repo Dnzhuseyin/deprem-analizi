@@ -156,7 +156,7 @@ class DamageReportViewModel : ViewModel() {
             "yapidakiSistem" -> currentForm.copy(yapidakiSistem = YapiSistemi.values().first { it.displayName == value })
             "hasarDurumu" -> currentForm.copy(hasarDurumu = HasarDurumu.values().first { it.displayName == value })
             "tasiyiciSistem" -> currentForm.copy(tasiyiciSistem = TasiyiciSistem.values().first { it.displayName == value })
-            "tasimaGucuKaybi" -> currentForm.copy(tasimaGucuKaybi = value as Boolean)
+            "tasimaGucuKaybi" -> currentForm.copy(tasimaGucuKaybi = value as Boolean?)
             "aciklamalar" -> currentForm.copy(aciklamalar = value as String)
             "adiSoyadi1" -> currentForm.copy(adiSoyadi1 = value as String)
             "meslegi1" -> currentForm.copy(meslegi1 = value as String)

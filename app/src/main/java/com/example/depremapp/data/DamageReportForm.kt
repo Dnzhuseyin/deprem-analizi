@@ -45,7 +45,7 @@ data class DamageReportForm(
     // Hasar Ait Bilgiler (K/T/A/D/S/M)
     val hasarDurumu: HasarDurumu = HasarDurumu.NONE,
     val tasiyiciSistem: TasiyiciSistem = TasiyiciSistem.NONE,
-    val tasimaGucuKaybi: Boolean = false,
+    val tasimaGucuKaybi: Boolean? = null,
     
     // Açıklamalar
     val aciklamalar: String = "",
