@@ -143,7 +143,7 @@ fun DamageReportScreen(
                         is FormField.YesNoInput -> YesNoInputField(
                             label = field.label,
                             value = getBooleanFieldValue(formState.formData, field.key),
-                            onValueChange = { viewModel.updateField(field.key, it) }
+                            onValueChange = { viewModel.updateField(field.key, it as Any) }
                         )
                         is FormField.MultilineInput -> MultilineInputField(
                             label = field.label,
