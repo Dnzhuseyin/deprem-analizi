@@ -35,24 +35,51 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.depremapp.data.AnalysisResult
+import com.example.depremapp.data.DamageReportForm
 import com.example.depremapp.data.DamageType
+import com.example.depremapp.ui.DamageReportScreen
 import com.example.depremapp.ui.ImagePickerUtils
 import com.example.depremapp.ui.theme.DepremAppTheme
 import com.example.depremapp.viewmodel.CrackAnalysisViewModel
+import com.example.depremapp.viewmodel.DamageReportViewModel
+
+enum class Screen {
+    HOME, CRACK_ANALYSIS, DAMAGE_REPORT
+}
 
 class MainActivity : ComponentActivity() {
     
-    private val viewModel: CrackAnalysisViewModel by viewModels()
+    private val crackViewModel: CrackAnalysisViewModel by viewModels()
+    private val reportViewModel: DamageReportViewModel by viewModels()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             DepremAppTheme {
+                var currentScreen by remember { mutableStateOf(Screen.HOME) }
+                
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CrackAnalysisScreen(viewModel)
+                    when (currentScreen) {
+                        Screen.HOME -> HomeScreen(
+                            onCrackAnalysisClick = { currentScreen = Screen.CRACK_ANALYSIS },
+                            onDamageReportClick = { currentScreen = Screen.DAMAGE_REPORT }
+                        )
+                        Screen.CRACK_ANALYSIS -> CrackAnalysisScreen(
+                            viewModel = crackViewModel,
+                            onBack = { currentScreen = Screen.HOME }
+                        )
+                        Screen.DAMAGE_REPORT -> DamageReportScreen(
+                            viewModel = reportViewModel,
+                            onComplete = { formData ->
+                                // TODO: PDF oluştur
+                                currentScreen = Screen.HOME
+                            },
+                            onBack = { currentScreen = Screen.HOME }
+                        )
+                    }
                 }
             }
         }
@@ -61,7 +88,177 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CrackAnalysisScreen(viewModel: CrackAnalysisViewModel) {
+fun HomeScreen(
+    onCrackAnalysisClick: () -> Unit,
+    onDamageReportClick: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { 
+                    Text(
+                        "Deprem Hasar Analiz Sistemi",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    ) 
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Hero Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    Text(
+                        text = "🏢",
+                        fontSize = 48.sp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Yapı Hasar Değerlendirmesi",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Deprem sonrası yapı hasarlarını analiz edin ve detaylı raporlar oluşturun.",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                    )
+                }
+            }
+            
+            // Çatlak Analizi Kartı
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onCrackAnalysisClick() },
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                RoundedCornerShape(12.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "📸", fontSize = 32.sp)
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "AI Çatlak Analizi",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Fotoğraftan otomatik çatlak tespiti ve hasar seviyesi belirleme",
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    }
+                }
+            }
+            
+            // Hasar Raporu Kartı
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onDamageReportClick() },
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(
+                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                                RoundedCornerShape(12.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "📋", fontSize = 32.sp)
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Kesin Hasar Tespit Raporu",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Resmi hasar tespit formu doldur ve PDF rapor oluştur",
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.weight(1f))
+            
+            // Info Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "ℹ️", fontSize = 20.sp)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "Yapı güvenliği değerlendirmesi mutlaka uzman tarafından yapılmalıdır.",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CrackAnalysisScreen(
+    viewModel: CrackAnalysisViewModel,
+    onBack: () -> Unit
+) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     
@@ -115,6 +312,17 @@ fun CrackAnalysisScreen(viewModel: CrackAnalysisViewModel) {
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     ) 
+                },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        viewModel.resetAnalysis()
+                        onBack()
+                    }) {
+                        Icon(
+                            painter = painterResource(id = android.R.drawable.ic_menu_revert),
+                            contentDescription = "Geri"
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
