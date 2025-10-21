@@ -77,6 +77,9 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.androidx.exifinterface)
     
+    // Location Services
+    implementation("com.google.android.gms:play-services-location:21.1.0")
+    
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

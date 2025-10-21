@@ -1,5 +1,8 @@
 package com.example.depremapp.ui
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,11 +12,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -31,6 +36,28 @@ fun DamageReportScreen(
     val formState by viewModel.formState.collectAsState()
     val currentStep = viewModel.formSteps[formState.currentStep]
     val progress = (formState.currentStep + 1).toFloat() / viewModel.formSteps.size
+    val context = LocalContext.current
+    
+    // Location Permission Launcher
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                     permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (granted) {
+            viewModel.fetchLocationAndFillForm(context)
+        } else {
+            // Permission denied
+            viewModel.clearLocationError()
+        }
+    }
+    
+    // Show location error if any
+    formState.locationError?.let { error ->
+        LaunchedEffect(error) {
+            // Error will be shown in Snackbar
+        }
+    }
     
     if (formState.isComplete) {
         ReportSummaryScreen(
@@ -113,6 +140,82 @@ fun DamageReportScreen(
                 }
                 
                 Spacer(modifier = Modifier.height(24.dp))
+                
+                // GPS Location Button (only on first step - İdari Bilgiler)
+                if (formState.currentStep == 0) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text(
+                                text = "📍 GPS ile Otomatik Doldur",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Text(
+                                text = "Konumunuzu kullanarak İl, İlçe, Mahalle ve koordinat bilgilerini otomatik doldurun",
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                            
+                            Spacer(modifier = Modifier.height(12.dp))
+                            
+                            Button(
+                                onClick = {
+                                    locationPermissionLauncher.launch(
+                                        arrayOf(
+                                            Manifest.permission.ACCESS_FINE_LOCATION,
+                                            Manifest.permission.ACCESS_COARSE_LOCATION
+                                        )
+                                    )
+                                },
+                                enabled = !formState.isLoadingLocation,
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary
+                                )
+                            ) {
+                                if (formState.isLoadingLocation) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        strokeWidth = 2.dp
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Konum Alınıyor...")
+                                } else {
+                                    Icon(
+                                        Icons.Default.LocationOn,
+                                        contentDescription = "Konum",
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Konumumu Al")
+                                }
+                            }
+                            
+                            // Show error if any
+                            formState.locationError?.let { error ->
+                                Text(
+                                    text = "⚠️ $error",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
                 
                 // Form Fields
                 currentStep.fields.forEach { field ->

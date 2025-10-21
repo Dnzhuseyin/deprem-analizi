@@ -1,15 +1,21 @@
 package com.example.depremapp.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.depremapp.data.*
+import com.example.depremapp.utils.LocationHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 data class ReportFormState(
     val currentStep: Int = 0,
     val formData: DamageReportForm = DamageReportForm(),
-    val isComplete: Boolean = false
+    val isComplete: Boolean = false,
+    val isLoadingLocation: Boolean = false,
+    val locationError: String? = null
 )
 
 class DamageReportViewModel : ViewModel() {
@@ -189,6 +195,69 @@ class DamageReportViewModel : ViewModel() {
     
     fun resetForm() {
         _formState.value = ReportFormState()
+    }
+    
+    /**
+     * Fetches current location and auto-fills location fields
+     */
+    fun fetchLocationAndFillForm(context: Context) {
+        val locationHelper = LocationHelper(context)
+        
+        // Check permission
+        if (!locationHelper.hasLocationPermission()) {
+            _formState.value = _formState.value.copy(
+                locationError = "Konum izni verilmedi"
+            )
+            return
+        }
+        
+        // Start loading
+        _formState.value = _formState.value.copy(
+            isLoadingLocation = true,
+            locationError = null
+        )
+        
+        viewModelScope.launch {
+            try {
+                val locationData = locationHelper.getLocationWithAddress()
+                
+                if (locationData != null) {
+                    // Auto-fill location fields
+                    updateField("il", locationData.il)
+                    updateField("ilce", locationData.ilce)
+                    updateField("mahalle", locationData.mahalle)
+                    updateField("gpsKoordinat", 
+                        "${String.format("%.6f", locationData.latitude)}, ${String.format("%.6f", locationData.longitude)}")
+                    
+                    _formState.value = _formState.value.copy(
+                        isLoadingLocation = false,
+                        locationError = null
+                    )
+                } else {
+                    _formState.value = _formState.value.copy(
+                        isLoadingLocation = false,
+                        locationError = "Konum alınamadı"
+                    )
+                }
+            } catch (e: SecurityException) {
+                _formState.value = _formState.value.copy(
+                    isLoadingLocation = false,
+                    locationError = "Konum izni gerekli"
+                )
+            } catch (e: Exception) {
+                _formState.value = _formState.value.copy(
+                    isLoadingLocation = false,
+                    locationError = "Konum alınamadı: ${e.message}"
+                )
+            }
+        }
+    }
+    
+    /**
+     * Clears location error message
+     */
+    fun clearLocationError() {
+        _formState.value = _formState.value.copy(locationError = null)
     }
 }
 
