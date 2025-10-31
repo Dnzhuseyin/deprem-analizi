@@ -5,17 +5,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.depremapp.data.*
 import com.example.depremapp.utils.LocationHelper
+import com.example.depremapp.utils.PdfGenerator
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class ReportFormState(
     val currentStep: Int = 0,
     val formData: DamageReportForm = DamageReportForm(),
     val isComplete: Boolean = false,
     val isLoadingLocation: Boolean = false,
-    val locationError: String? = null
+    val locationError: String? = null,
+    val isGeneratingPdf: Boolean = false,
+    val pdfFile: java.io.File? = null,
+    val pdfError: String? = null
 )
 
 class DamageReportViewModel : ViewModel() {
@@ -319,6 +325,56 @@ class DamageReportViewModel : ViewModel() {
      */
     fun clearLocationError() {
         _formState.value = _formState.value.copy(locationError = null)
+    }
+    
+    /**
+     * Generates PDF from form data and saves it
+     */
+    fun generateAndSavePdf(context: Context) {
+        _formState.value = _formState.value.copy(
+            isGeneratingPdf = true,
+            pdfError = null,
+            pdfFile = null
+        )
+        
+        viewModelScope.launch {
+            try {
+                val pdfFile = withContext(Dispatchers.IO) {
+                    val pdfGenerator = PdfGenerator(context)
+                    pdfGenerator.generatePdf(_formState.value.formData)
+                }
+                
+                if (pdfFile != null && pdfFile.exists()) {
+                    _formState.value = _formState.value.copy(
+                        isGeneratingPdf = false,
+                        pdfFile = pdfFile,
+                        pdfError = null
+                    )
+                } else {
+                    _formState.value = _formState.value.copy(
+                        isGeneratingPdf = false,
+                        pdfError = "PDF oluşturulamadı"
+                    )
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _formState.value = _formState.value.copy(
+                    isGeneratingPdf = false,
+                    pdfError = "PDF oluşturulurken hata: ${e.message}"
+                )
+            }
+        }
+    }
+    
+    /**
+     * Clears PDF state
+     */
+    fun clearPdfState() {
+        _formState.value = _formState.value.copy(
+            pdfFile = null,
+            pdfError = null,
+            isGeneratingPdf = false
+        )
     }
 }
 

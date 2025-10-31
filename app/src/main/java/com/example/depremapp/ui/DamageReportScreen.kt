@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -51,6 +52,7 @@ fun DamageReportScreen(
     if (formState.isComplete) {
         ReportSummaryScreen(
             formData = formState.formData,
+            viewModel = viewModel,
             onConfirm = { onComplete(formState.formData) },
             onEdit = { viewModel.resetForm() }
         )
@@ -590,9 +592,20 @@ fun MultilineInputField(
 @Composable
 fun ReportSummaryScreen(
     formData: DamageReportForm,
+    viewModel: DamageReportViewModel,
     onConfirm: () -> Unit,
     onEdit: () -> Unit
 ) {
+    val formState by viewModel.formState.collectAsState()
+    val context = LocalContext.current
+    
+    // Show success message when PDF is created
+    LaunchedEffect(formState.pdfFile) {
+        formState.pdfFile?.let { file ->
+            // PDF created successfully - can show snackbar or toast
+        }
+    }
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -643,6 +656,93 @@ fun ReportSummaryScreen(
         }
         
         Spacer(modifier = Modifier.height(24.dp))
+        
+        // PDF Status Card
+        if (formState.pdfFile != null) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "PDF Oluşturuldu",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                formState.pdfFile!!.name,
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                            Text(
+                                "Konum: ${formState.pdfFile!!.parent}",
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        
+        // PDF Error
+        formState.pdfError?.let { error ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                )
+            ) {
+                Text(
+                    "⚠️ $error",
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        
+        // Generate PDF Button
+        Button(
+            onClick = { viewModel.generateAndSavePdf(context) },
+            enabled = !formState.isGeneratingPdf,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.tertiary
+            )
+        ) {
+            if (formState.isGeneratingPdf) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = MaterialTheme.colorScheme.onTertiary,
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("PDF Oluşturuluyor...")
+            } else {
+                Icon(Icons.Default.Share, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("PDF Olarak Kaydet", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(12.dp))
         
         Button(
             onClick = onConfirm,
