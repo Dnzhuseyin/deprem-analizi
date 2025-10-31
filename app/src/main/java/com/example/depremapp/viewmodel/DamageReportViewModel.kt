@@ -198,7 +198,7 @@ class DamageReportViewModel : ViewModel() {
     }
     
     /**
-     * Fetches current location and auto-fills location fields
+     * Fetches current location and auto-fills ALL form fields with GPS and default data
      */
     fun fetchLocationAndFillForm(context: Context) {
         val locationHelper = LocationHelper(context)
@@ -222,12 +222,66 @@ class DamageReportViewModel : ViewModel() {
                 val locationData = locationHelper.getLocationWithAddress()
                 
                 if (locationData != null) {
-                    // Auto-fill location fields
+                    // Get current date for afet tarihi and rapor tarihi
+                    val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale("tr")).format(java.util.Date())
+                    
+                    // Auto-fill ALL fields
+                    // 1. İdari Bilgiler
                     updateField("il", locationData.il)
                     updateField("ilce", locationData.ilce)
                     updateField("mahalle", locationData.mahalle)
+                    updateField("belde", "") // Kullanıcı dolduracak
+                    updateField("koy", "")
+                    updateField("mezra", "")
+                    
+                    // 2. Nüfus ve Hane Bilgileri (default değerler)
+                    updateField("nufus", "1")
+                    updateField("hane", "1")
+                    
+                    // 3. Afet Bilgileri
+                    updateField("afetinTuru", "Deprem") // Default: Deprem
+                    updateField("afetinTarihi", currentDate)
+                    updateField("sayfaNo", "1")
+                    
+                    // 4. Yapı Konum Bilgileri
+                    updateField("caddeSokak", locationData.fullAddress)
                     updateField("gpsKoordinat", 
                         "${String.format("%.6f", locationData.latitude)}, ${String.format("%.6f", locationData.longitude)}")
+                    updateField("afetzedesiSoyadi", "")
+                    updateField("babaAdi", "")
+                    updateField("yapiAdi", "")
+                    updateField("tedasNo", "")
+                    
+                    // 5. Yapı Özellikleri (default değerler)
+                    updateField("mimariProje", false)
+                    updateField("kacinciKat", "3")
+                    updateField("bodrum", false)
+                    updateField("bodrum1", false)
+                    updateField("zemin", true)
+                    updateField("normal1", true)
+                    updateField("normal2", true)
+                    updateField("normal3", false)
+                    updateField("catiKati", false)
+                    
+                    // 6. Yapı Sistemi (default: Betonarme Karkas)
+                    updateField("yapidakiSistem", "Betonarme Karkas Sistem")
+                    
+                    // 7. Hasar Durumu (default değerler)
+                    updateField("hasarDurumu", "Orta Hasar")
+                    updateField("tasiyiciSistem", "Orta Hasar")
+                    updateField("tasimaGucuKaybi", false)
+                    
+                    // 8. Açıklamalar
+                    updateField("aciklamalar", "GPS ile otomatik dolduruldu. Konum: ${locationData.fullAddress}")
+                    
+                    // 9. İmza Bilgileri
+                    updateField("adiSoyadi1", "")
+                    updateField("meslegi1", "Mühendis")
+                    updateField("birimi1", "")
+                    updateField("adiSoyadi2", "")
+                    updateField("meslegi2", "")
+                    updateField("birimi2", "")
+                    updateField("raporTarihi", currentDate)
                     
                     _formState.value = _formState.value.copy(
                         isLoadingLocation = false,
@@ -251,6 +305,13 @@ class DamageReportViewModel : ViewModel() {
                 )
             }
         }
+    }
+    
+    /**
+     * Completes the form and shows summary
+     */
+    fun completeForm() {
+        _formState.value = _formState.value.copy(isComplete = true)
     }
     
     /**
