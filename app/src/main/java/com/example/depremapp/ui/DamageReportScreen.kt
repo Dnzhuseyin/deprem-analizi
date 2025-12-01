@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -83,71 +85,126 @@ fun DamageReportScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            // GPS Auto-Fill Section
+            // GPS Auto-Fill Section - Deprem Temalı
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                ),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(20.dp)
-                ) {
-                    Text(
-                        text = "📍 GPS ile Otomatik Doldur",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                    Text(
-                        text = "Konumunuzu kullanarak form bilgilerini otomatik doldurun",
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
-                    )
-                    
-                    Button(
-                        onClick = {
-                            locationPermissionLauncher.launch(
-                                arrayOf(
-                                    Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.tertiary,
+                                    MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f)
                                 )
                             )
-                        },
-                        enabled = !formState.isLoadingLocation,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
                         )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp)
                     ) {
-                        if (formState.isLoadingLocation) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                strokeWidth = 2.dp
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .background(
+                                        Color.White.copy(alpha = 0.25f),
+                                        RoundedCornerShape(12.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = "📍", fontSize = 24.sp)
+                            }
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Text(
+                                text = "GPS Konum Bilgisi",
+                                fontSize = 21.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Konum Alınıyor...")
-                        } else {
-                            Icon(
-                                Icons.Default.LocationOn,
-                                contentDescription = "Konum",
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Konumumu Al ve Formu Doldur")
                         }
-                    }
-                    
-                    formState.locationError?.let { error ->
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "⚠️ $error",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 8.dp)
+                            text = "Konumunuzu kullanarak il, ilçe ve GPS koordinatlarını otomatik doldurun",
+                            fontSize = 14.sp,
+                            color = Color.White.copy(alpha = 0.95f),
+                            lineHeight = 20.sp,
+                            modifier = Modifier.padding(bottom = 18.dp)
                         )
+                    
+                        Button(
+                            onClick = {
+                                locationPermissionLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION
+                                    )
+                                )
+                            },
+                            enabled = !formState.isLoadingLocation,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(54.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = MaterialTheme.colorScheme.tertiary
+                            ),
+                            shape = RoundedCornerShape(14.dp),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                        ) {
+                            if (formState.isLoadingLocation) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(22.dp),
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    strokeWidth = 2.5.dp
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    "Konum Alınıyor...",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            } else {
+                                Icon(
+                                    Icons.Default.LocationOn,
+                                    contentDescription = "Konum",
+                                    modifier = Modifier.size(22.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    "Konumumu Al ve Formu Doldur",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    
+                        formState.locationError?.let { error ->
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Surface(
+                                shape = RoundedCornerShape(10.dp),
+                                color = Color.White.copy(alpha = 0.3f)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(text = "⚠️", fontSize = 16.sp)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = error,
+                                        fontSize = 13.sp,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -158,10 +215,20 @@ fun DamageReportScreen(
             
             // 1. İdari Bilgiler
             FormSectionCard(title = "1️⃣ İdari Bilgiler") {
-                TextInputField("İl", getFieldValue(formState.formData, "il"), "Örn: İstanbul") {
+                TextInputField(
+                    label = "İl",
+                    value = getFieldValue(formState.formData, "il"),
+                    placeholder = "Örn: İstanbul",
+                    defaultSuggestions = listOf("İstanbul", "Ankara", "İzmir", "Hatay", "Kahramanmaraş")
+                ) {
                     viewModel.updateField("il", it)
                 }
-                TextInputField("İlçe", getFieldValue(formState.formData, "ilce"), "Örn: Kadıköy") {
+                TextInputField(
+                    label = "İlçe",
+                    value = getFieldValue(formState.formData, "ilce"),
+                    placeholder = "Örn: Kadıköy",
+                    defaultSuggestions = listOf("Merkez", "Şehitkamil", "Defne")
+                ) {
                     viewModel.updateField("ilce", it)
                 }
                 TextInputField("Belde", getFieldValue(formState.formData, "belde")) {
@@ -194,7 +261,12 @@ fun DamageReportScreen(
             
             // 3. Afet Bilgileri
             FormSectionCard(title = "3️⃣ Afet Bilgileri") {
-                TextInputField("Afetin Türü", getFieldValue(formState.formData, "afetinTuru"), "Örn: Deprem") {
+                TextInputField(
+                    label = "Afetin Türü",
+                    value = getFieldValue(formState.formData, "afetinTuru"),
+                    placeholder = "Örn: Deprem",
+                    defaultSuggestions = listOf("Deprem", "Sel", "Heyelan", "Yangın")
+                ) {
                     viewModel.updateField("afetinTuru", it)
                 }
                 DateInputField("Afetin Tarihi", getFieldValue(formState.formData, "afetinTarihi")) {
@@ -314,19 +386,35 @@ fun DamageReportScreen(
                 TextInputField("Adı Soyadı 1", getFieldValue(formState.formData, "adiSoyadi1")) {
                     viewModel.updateField("adiSoyadi1", it)
                 }
-                TextInputField("Mesleği 1", getFieldValue(formState.formData, "meslegi1")) {
+                TextInputField(
+                    label = "Mesleği 1",
+                    value = getFieldValue(formState.formData, "meslegi1"),
+                    defaultSuggestions = listOf("İnşaat Mühendisi", "Mimar", "Teknik Eleman")
+                ) {
                     viewModel.updateField("meslegi1", it)
                 }
-                TextInputField("Birimi 1", getFieldValue(formState.formData, "birimi1")) {
+                TextInputField(
+                    label = "Birimi 1",
+                    value = getFieldValue(formState.formData, "birimi1"),
+                    defaultSuggestions = listOf("AFAD", "Belediye", "İl Müdürlüğü")
+                ) {
                     viewModel.updateField("birimi1", it)
                 }
                 TextInputField("Adı Soyadı 2", getFieldValue(formState.formData, "adiSoyadi2")) {
                     viewModel.updateField("adiSoyadi2", it)
                 }
-                TextInputField("Mesleği 2", getFieldValue(formState.formData, "meslegi2")) {
+                TextInputField(
+                    label = "Mesleği 2",
+                    value = getFieldValue(formState.formData, "meslegi2"),
+                    defaultSuggestions = listOf("İnşaat Mühendisi", "Mimar", "Teknik Eleman")
+                ) {
                     viewModel.updateField("meslegi2", it)
                 }
-                TextInputField("Birimi 2", getFieldValue(formState.formData, "birimi2")) {
+                TextInputField(
+                    label = "Birimi 2",
+                    value = getFieldValue(formState.formData, "birimi2"),
+                    defaultSuggestions = listOf("AFAD", "Belediye", "İl Müdürlüğü")
+                ) {
                     viewModel.updateField("birimi2", it)
                 }
                 DateInputField("Rapor Tarihi", getFieldValue(formState.formData, "raporTarihi")) {
@@ -336,21 +424,31 @@ fun DamageReportScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // Submit Button
+            // Submit Button - Deprem Temalı
             Button(
-                onClick = { 
+                onClick = {
                     viewModel.completeForm()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .height(58.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
-                )
+                ),
+                shape = RoundedCornerShape(16.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
             ) {
-                Icon(Icons.Default.Check, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Raporu Tamamla", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    "Raporu Tamamla ve Önizle",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -366,21 +464,34 @@ fun FormSectionCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(20.dp)
         ) {
-            Text(
-                text = title,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 18.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .background(
+                            MaterialTheme.colorScheme.primary,
+                            CircleShape
+                        )
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = title,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
             content()
         }
     }
@@ -426,18 +537,37 @@ fun TextInputField(
     label: String,
     value: String,
     placeholder: String = "",
+    defaultSuggestions: List<String> = emptyList(),
     onValueChange: (String) -> Unit
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        placeholder = { Text(placeholder) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 12.dp),
-        singleLine = true
-    )
+    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(label) },
+            placeholder = { Text(placeholder) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        if (defaultSuggestions.isNotEmpty() && value.isEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                defaultSuggestions.take(3).forEach { suggestion ->
+                    FilterChip(
+                        selected = false,
+                        onClick = { onValueChange(suggestion) },
+                        label = { Text(suggestion, fontSize = 11.sp) },
+                        modifier = Modifier.height(28.dp)
+                    )
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -615,37 +745,78 @@ fun ReportSummaryScreen(
     ) {
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            )
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.secondary
+                            )
+                        )
+                    )
             ) {
-                Text(
-                    "✅ Rapor Tamamlandı",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "Hasar tespit raporu başarıyla dolduruldu",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                )
+                Column(
+                    modifier = Modifier.padding(28.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(
+                                Color.White.copy(alpha = 0.25f),
+                                CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("✅", fontSize = 36.sp)
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        "Rapor Tamamlandı",
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Hasar tespit raporu başarıyla oluşturuldu",
+                        fontSize = 15.sp,
+                        color = Color.White.copy(alpha = 0.95f),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // Show summary
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("📋 Rapor Özeti", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(16.dp))
-                
+        // Show summary - Deprem Temalı
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            shape = RoundedCornerShape(18.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(modifier = Modifier.padding(22.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("📋", fontSize = 24.sp)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        "Rapor Özeti",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+
                 SummaryItem("İl", formData.il)
                 SummaryItem("İlçe", formData.ilce)
                 SummaryItem("Mahalle", formData.mahalle)
@@ -716,52 +887,92 @@ fun ReportSummaryScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
         
-        // Generate PDF Button
+        // Generate PDF Button - Deprem Temalı
         Button(
             onClick = { viewModel.generateAndSavePdf(context) },
             enabled = !formState.isGeneratingPdf,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .height(58.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.tertiary
-            )
+            ),
+            shape = RoundedCornerShape(16.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp)
         ) {
             if (formState.isGeneratingPdf) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(22.dp),
                     color = MaterialTheme.colorScheme.onTertiary,
-                    strokeWidth = 2.dp
+                    strokeWidth = 2.5.dp
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("PDF Oluşturuluyor...")
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    "PDF Oluşturuluyor...",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             } else {
-                Icon(Icons.Default.Share, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("PDF Olarak Kaydet", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Icon(
+                    Icons.Default.Share,
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    "PDF Olarak Kaydet",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(12.dp))
-        
+
         Button(
             onClick = onConfirm,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(58.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            ),
+            shape = RoundedCornerShape(16.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp)
         ) {
-            Text("Onayla ve Kaydet", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Icon(
+                Icons.Default.Check,
+                contentDescription = null,
+                modifier = Modifier.size(22.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                "Onayla ve Kaydet",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
-        
+
         Spacer(modifier = Modifier.height(12.dp))
-        
+
         OutlinedButton(
             onClick = onEdit,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
+                .height(52.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.primary
+            ),
+            border = ButtonDefaults.outlinedButtonBorder.copy(
+                width = 2.dp
+            )
         ) {
-            Text("Düzenle")
+            Text(
+                "← Formu Düzenle",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }

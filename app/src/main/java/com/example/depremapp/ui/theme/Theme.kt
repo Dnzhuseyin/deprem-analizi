@@ -9,28 +9,69 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = DarkOrange,              // Ana vurgu rengi
+    onPrimary = Color.Black,          // Primary üzerindeki metin
+    primaryContainer = DarkCardBackground,
+    onPrimaryContainer = DarkTextPrimary,
+
+    secondary = DarkAmber,            // İkincil vurgu
+    onSecondary = Color.Black,
+    secondaryContainer = DarkSurface,
+    onSecondaryContainer = DarkTextPrimary,
+
+    tertiary = InfoBlue,              // Bilgi rengi
+    onTertiary = Color.White,
+
+    error = ErrorDark,                // Hata rengi
+    onError = Color.White,
+    errorContainer = Color(0xFF5A1C1C),
+    onErrorContainer = ErrorDark,
+
+    background = DarkGray,            // Ana arka plan
+    onBackground = DarkTextPrimary,
+
+    surface = DarkSurface,            // Yüzeyler (Card, vb.)
+    onSurface = DarkTextPrimary,
+    surfaceVariant = DarkCardBackground,
+    onSurfaceVariant = DarkTextSecondary,
+
+    outline = DarkTextSecondary,
+    outlineVariant = Color(0xFF444444)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+    primary = LightOrange,            // Ana vurgu rengi
     onPrimary = Color.White,
+    primaryContainer = Color(0xFFFFE0B2),
+    onPrimaryContainer = Color(0xFF4E2E00),
+
+    secondary = LightAmber,           // İkincil vurgu
     onSecondary = Color.White,
+    secondaryContainer = Color(0xFFFFECB3),
+    onSecondaryContainer = Color(0xFF4E3500),
+
+    tertiary = InfoBlue,              // Bilgi rengi
     onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+
+    error = ErrorLight,               // Hata rengi
+    onError = Color.White,
+    errorContainer = Color(0xFFFFCDD2),
+    onErrorContainer = ErrorLight,
+
+    background = LightGray,           // Ana arka plan
+    onBackground = LightTextPrimary,
+
+    surface = LightCardBackground,    // Yüzeyler (Card, vb.)
+    onSurface = LightTextPrimary,
+    surfaceVariant = LightSurface,
+    onSurfaceVariant = LightTextSecondary,
+
+    outline = Color(0xFFBDBDBD),
+    outlineVariant = Color(0xFFE0E0E0)
 )
 
 @Composable
